@@ -109,7 +109,9 @@ impl virt::Hypervisor for LinuxMshv {
         }
 
         // Open /dev/mshv.
+        tracing::info!("Cameron debug - open /dev/mshv");
         let mshv = Mshv::new().map_err(Error::OpenMshv)?;
+        tracing::info!("Cameron debug - fin open /dev/mshv");
 
         // Create VM.
         //
@@ -117,6 +119,8 @@ impl virt::Hypervisor for LinuxMshv {
         // APIC configuration), but the underlying crate just hardcodes
         // everything.
         let vmfd: VmFd;
+        tracing::info!("Cameron debug - get vmfd");
+
         loop {
             match mshv.create_vm() {
                 Ok(fd) => vmfd = fd,
@@ -133,6 +137,7 @@ impl virt::Hypervisor for LinuxMshv {
             }
             break;
         }
+        tracing::info!("Cameron debug - fin get vmfd");
 
         // Create virtual CPUs.
         let mut vps: Vec<MshvVpInner> = Vec::new();
@@ -157,6 +162,7 @@ impl virt::Hypervisor for LinuxMshv {
             });
         }
 
+        tracing::info!("Cameron debug - fin create vcpu");
         // Install required intercepts
         let intercept_args = mshv_install_intercept {
             access_type_mask: HV_INTERCEPT_ACCESS_MASK_EXECUTE,
@@ -165,6 +171,8 @@ impl virt::Hypervisor for LinuxMshv {
         };
         vmfd.install_intercept(intercept_args)
             .map_err(Error::InstallIntercept)?;
+
+        tracing::info!("Cameron debug - fin install intercept");
 
         // Set up a signal for forcing vcpufd.run() ioctl to exit.
         static SIGNAL_HANDLER_INIT: Once = Once::new();
