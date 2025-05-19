@@ -656,6 +656,7 @@ impl InitializedVm {
                 guest_arch = "x86_64"
             ))]
             Hypervisor::MsHv => {
+                tracing::info!("Cameron debug new_with_hypervisor_mshv");
                 Self::new_with_hypervisor(
                     driver_source,
                     &mut virt_mshv::LinuxMshv,
@@ -753,6 +754,7 @@ impl InitializedVm {
 
         let processor_topology = cfg.processor_topology.to_topology()?;
 
+        tracing::info!("Cameron debug proto new_partition");
         let proto = hypervisor
             .new_partition(virt::ProtoPartitionConfig {
                 processor_topology: &processor_topology,
@@ -767,6 +769,7 @@ impl InitializedVm {
             })
             .context("failed to create the prototype partition")?;
 
+        tracing::info!("Cameron debug proto new_partition done");
         let physical_address_size = proto.max_physical_address_size();
 
         // Determine if a special vtl2 memory allocation should be used.
